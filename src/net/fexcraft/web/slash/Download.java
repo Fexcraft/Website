@@ -38,7 +38,7 @@ public class Download extends HttpServlet {
 					break;
 				}
 				case "downloads":{
-					reply = MySql.WEB.getArray("downloads", "where modid='" + id + "' and listed='1' "+ (mv == null || mv.equals("") ? "" : "and mc_version='" + mv + "'"), "modid", "mc_version", "version", "mirror1_name", "mirror1_link", "mirror2_name", "mirror2_link", "mirror3_name", "mirror3_link").toString();
+					reply = MySql.WEB.getArray("downloads", "where modid='" + id + "' and listed='1' "+ (mv == null || mv.equals("") ? "" : "and mc_version='" + mv + "'") + " order by mc_version;", "modid", "mc_version", "version", "mirror1_name", "mirror1_link", "mirror2_name", "mirror2_link", "mirror3_name", "mirror3_link").toString();
 					break;
 				}
 			}
@@ -52,6 +52,8 @@ public class Download extends HttpServlet {
 		if(id != null && !id.equals("")){
 			doc.getElementById("dlsdsl").attr("data-selected", id);
 		}
+		doc.getElementById("dllist").before(FileCache.getResource("ads/ad3-wide", "html"));
+		doc.getElementById("dllist").after(FileCache.getResource("ads/ad3-wide", "html"));
 		response.getWriter().append(doc.toString());
 		return;
 	}

@@ -1,2 +1,4 @@
-<div style='font-size:40px;font-weight:bold;text-align:center;background-color:#cfcfcf'>Downloads</div>
-<div id=dllist></div>
+<div id=dltitle style='font-size:40px;font-weight:bold;text-align:center;background-color:#cfcfcf'>Downloads</div>
+<div id=dllist>
+	<script> if(elm.dataset.selected != 'null'){ loadResults(elm.dataset.selected, "all"); document.getElementById("dltitle").innerHTML = "Downloads - " + elm.dataset.selected.toUpperCase(); } </script>
+</div>

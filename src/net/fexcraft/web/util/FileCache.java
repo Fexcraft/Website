@@ -177,6 +177,7 @@ public class FileCache {
 		Document doc = Jsoup.parse(getResource("root", "html"));
 		doc.head().append("<title>" + title + " - Fexcraft Network</title>");
 		doc.body().getElementById("top_right").html("<a href=\"/register\">Register</a><br><a href=\"/session?rq=login\">Login</a>");//TODO login state
+		doc.getElementById("footer").getAllElements().get(0).prepend(getResource("ads/ad3-wide", "html"));
 		return doc;
 	}
 

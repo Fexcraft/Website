@@ -15,17 +15,17 @@
 					list.innerHTML = "No Results found";
 				}
 				else{
+					var last = "";
 					var str = "<table><tr><th>Host Version</th><th>Version</th><th>Download</th><th>Mirror 2</th><th>Mirror 3</th><tr>";
 					for(var i = 0; i < arr.length; i++){
 						var obj = arr[i];
+						if(obj.mc_version != last && last != ""){ str += "<tr><td> - - - - - </td><td> - - - - - </td><td> - - - - - </td><td> - - - - - </td><td> - - - - - </td></tr>"; }
+						last = obj.mc_version;
 						str += "<tr><td>" + obj.mc_version + "</td><td>" + obj.version + "</td><td onClick=\"location.href='" + obj.mirror1_link + "'\">" + obj.mirror1_name + "</td><td onClick=\"location.href='" + obj.mirror2_link + "'\">" + obj.mirror2_name + "</td><td onClick=\"location.href='" + obj.mirror3_link + "'\">" + obj.mirror3_name + "</td></tr>";
 					}
 					list.innerHTML += str + "</table>";
 				}
 			});
-		}
-		if(elm.dataset.selected != 'null'){
-			loadResults(elm.dataset.selected, "all");
 		}
 		post("/download?rq=ids", function(text){
 			var arr = JSON.parse(text);

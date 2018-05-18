@@ -53,7 +53,7 @@ public class Index extends HttpServlet {
 					if(images.size() == 0){
 						return;
 					}
-					reply = images.get(Fexcraft.RANDOM.nextInt(images.size() + 1)).getAsString();
+					reply = images.get(Fexcraft.RANDOM.nextInt(images.size())).getAsString();
 					break;
 				}
 			}
