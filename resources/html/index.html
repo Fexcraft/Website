@@ -1,0 +1,10 @@
+<script>
+post("/index?rq=news", function(text){
+	var elm = document.getElementById("content");
+	var obj = JSON.parse(text);
+	for(var i = 0; i < obj.news.length; i++){
+		var n = obj.news[i];
+		elm.innerHTML += "<div onClick='location.href=\"/news/" + n.time + "\"'class=newsbox id=" + n.time + "><div class=newsbox_title>" + n.title + "</div><div class=newsbox_author>" + n.author + " || " + getTime(n.time) + "</div><div class=newsbox_content>" + n.content.replace("\n", "<br>") + "</div></div>";
+	}
+});
+</script>
