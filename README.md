@@ -9,7 +9,7 @@ http://fexcraft.net/tos#contributing
 
 # Used Libraries
 - (Eclipse) Jetty
-- - Jetty Ser
+- - Jetty Server
 - - Jetty Setvlet
 - - Websocket Server (unused)
 - - FastCGI (unused)
