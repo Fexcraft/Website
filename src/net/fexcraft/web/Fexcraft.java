@@ -57,6 +57,7 @@ import net.fexcraft.web.util.FileCache;
 import net.fexcraft.web.util.JsonUtil;
 import net.fexcraft.web.util.MySql;
 import net.fexcraft.web.util.SessionListener;
+import net.fexcraft.web.util.user.UserCache;
 
 public class Fexcraft extends Server {
 	
@@ -191,6 +192,9 @@ public class Fexcraft extends Server {
 			scheduler.scheduleJob(
 				JobBuilder.newJob(FileCache.ScheduledClearing.class).withDescription("Removes files which wheren't used longer than 10 minutes.").withIdentity("file_clearer", "group0").build(),
 				TriggerBuilder.newTrigger().withIdentity("10min", "group0").withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMinutes(10).repeatForever()).startNow().build());
+			scheduler.scheduleJob(
+					JobBuilder.newJob(UserCache.ScheduledSaving.class).withDescription("Saves Users with changes data to Database.").withIdentity("user_saver", "group1").build(),
+					TriggerBuilder.newTrigger().withIdentity("15min", "group1").withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMinutes(15).repeatForever()).startNow().build());
 		}
 		catch(SchedulerException e){
 			error("Scheduler Setup Error: " + e.getMessage());
