@@ -162,3 +162,39 @@ td:hover {
 	background-color: #cccccc;
 	color: #6a95ac;
 }
+
+#dlsdsl select {
+	border-radius: 6px;
+	font-size: 20px;
+	padding: 5px;
+	margin: 5px;
+	width: 95%;
+}
+
+#dllist {
+	margin: 5px;
+}
+
+#dllist table {
+	width: 100%;
+}
+
+#dllist th {
+	background-color: #dcdc87;
+}
+
+#dllist td:hover {
+	background-color: #d9cda4;
+	color: #18721f;
+	cursor: pointer;
+}
+
+#dllist th, td {
+	width: 20%;
+	border-left: 1px dashed black;
+	border-right: 1px dashed black;
+	border-top: 1px dashed black;
+	border-bottom: 1px dashed black;
+	padding-left: 10px;
+	padding-right: 10px;
+}

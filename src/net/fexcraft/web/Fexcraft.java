@@ -49,6 +49,7 @@ import net.dv8tion.jda.core.JDA;
 import net.fexcraft.web.files.MainFileServer;
 import net.fexcraft.web.files.WebData;
 import net.fexcraft.web.minecraft.fcl.Request;
+import net.fexcraft.web.slash.Download;
 import net.fexcraft.web.slash.Index;
 import net.fexcraft.web.slash.License;
 import net.fexcraft.web.util.FileCache;
@@ -157,6 +158,7 @@ public class Fexcraft extends Server {
 		context.addServlet(License.class, "/license");
 		context.addServlet(WebData.class, "/webdata");
 		context.addServlet(Index.class, "/home"); context.addServlet(Index.class, "/index");
+		context.addServlet(Download.class, "/download");
 		//
 		try{
 			info("Starting Webserver...");
@@ -211,10 +213,11 @@ public class Fexcraft extends Server {
 		return INSTANCE.devmode;
 	}
 	
-	public static boolean redirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public static boolean redirect(HttpServletRequest request, HttpServletResponse response){
 		if((request.getServerPort() == INSTANCE.http_port || request.getScheme().equals("http")) && request.getParameter("nossl") == null && !dev()){
     		String str = "https://" + request.getServerName() + request.getRequestURI() + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
-            response.sendRedirect(str);
+            try{ response.sendRedirect(str); }
+            catch(IOException e){ if(dev()){ e.printStackTrace(); } }
     		return true;
     	}
     	else{

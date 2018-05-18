@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -306,6 +307,9 @@ public class MySql {
 			return def;
 		}
 	}
+	
+	/// --- NEW METHODS --- ///
+	//TODO see about which from the older methods to update/remove.
 
 	public ResultSet queryJsonArray(String table, String where, String... strings){
 		String string = new String();
@@ -316,6 +320,48 @@ public class MySql {
 			}
 		}
 		return this.query("SELECT CONCAT('[',GROUP_CONCAT(JSON_OBJECT(" + string + ")),']') AS json FROM " + table + " " + where + ";");
+	}
+
+	public JsonArray getDistinctArray(String table, String what, String def){
+		JsonArray array = new JsonArray();
+		try{
+			ResultSet set = this.query("select distinct " + what + " from " + table + ";");
+			while(set.next()){
+				array.add(set.getString(what));
+			}
+		}
+		catch(SQLException e){
+			if(Fexcraft.dev()){
+				e.printStackTrace();
+			}
+		}
+		if(array.size() == 0){
+			array.add(def);
+		}
+		return array;
+	}
+	
+	public JsonArray getArray(String table, String args, String... keys){
+		JsonArray array = new JsonArray();
+		try{
+			ResultSet set = this.query("select * from " + table + (args == null ? ";" : " " + args + ";"));
+			while(set.next()){
+				if(keys.length > 1){
+					JsonObject obj = new JsonObject();
+					for(String key : keys){
+						obj.addProperty(key, set.getString(key));
+					}
+					array.add(obj);
+				}
+				else{
+					array.add(set.getString(keys[0]));
+				}
+			}
+		}
+		catch(Exception e){
+			//
+		}
+		return array;
 	}
 	
 }
