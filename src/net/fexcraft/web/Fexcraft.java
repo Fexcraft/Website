@@ -52,6 +52,7 @@ import net.fexcraft.web.minecraft.fcl.Request;
 import net.fexcraft.web.slash.Download;
 import net.fexcraft.web.slash.Index;
 import net.fexcraft.web.slash.License;
+import net.fexcraft.web.slash.TermsOfService;
 import net.fexcraft.web.util.FileCache;
 import net.fexcraft.web.util.JsonUtil;
 import net.fexcraft.web.util.MySql;
@@ -157,8 +158,9 @@ public class Fexcraft extends Server {
 		context.addServlet(MainFileServer.class, "/files/*");
 		context.addServlet(License.class, "/license");
 		context.addServlet(WebData.class, "/webdata");
-		context.addServlet(Index.class, "/home"); context.addServlet(Index.class, "/index");
+		context.addServlet(Index.class, "/*");
 		context.addServlet(Download.class, "/download");
+		context.addServlet(TermsOfService.class, "/tos");
 		//
 		try{
 			info("Starting Webserver...");

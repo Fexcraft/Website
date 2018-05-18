@@ -3,12 +3,27 @@ Official Fexcraft Website
 
 
 # ALL RIGHTS RESERVED UNTIL FURTHER OFFICIAL NOTICE
-Upon contributing you pass overship of your contribution to Fexcraft.Net, while still keeping legal responsability in case of any legal issues caused by your contribution, et cetera.
+## Contributing
+http://fexcraft.net/tos#contributing
+
 
 # Used Libraries
-- _list pending..._
+- (Eclipse) Jetty
+- - Jetty Ser
+- - Jetty Setvlet
+- - Websocket Server (unused)
+- - FastCGI (unused)
+- MySql Connector for Java
+- Google Gson
+- Google Api Client (?)
+- Apache Commons
+- Jsoup
+- JDA (Java Discord API)
+- - LavaPlayer
+- Log4j
+- Quartz Scheduler
 
 
 # Contact
 - Discord - https://discord.gg/rMXcrsv
-- _list pending_
+- EMail (See Github Profile)
