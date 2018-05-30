@@ -47,5 +47,14 @@ public class UserCache {
 		}
 		else return result.getError();
 	}
+	
+	public static User getUser(HttpSession session){
+		return getUser(session.getId());
+	}
+	
+	public static User getUser(String session){
+		User user = ONLINE_USERS.get(session);
+		return user == null ? new GuestUser() : user;
+	}
 
 }

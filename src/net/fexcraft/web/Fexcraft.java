@@ -56,6 +56,7 @@ import net.fexcraft.web.slash.TermsOfService;
 import net.fexcraft.web.util.FileCache;
 import net.fexcraft.web.util.JsonUtil;
 import net.fexcraft.web.util.MySql;
+import net.fexcraft.web.util.RTDB;
 import net.fexcraft.web.util.SessionListener;
 import net.fexcraft.web.util.user.UserCache;
 
@@ -185,6 +186,8 @@ public class Fexcraft extends Server {
 			getProperty("mysql_hostname", "something.net").getAsString(),
 			getProperty("mysql_database", "none").getAsString()
 		);
+		info("Controlling Database.");
+		RTDB.prepare();
 		try{
 			info("Starting Scheduler.");
 			scheduler = StdSchedulerFactory.getDefaultScheduler();

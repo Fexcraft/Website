@@ -29,7 +29,7 @@ public abstract class User {
 	
 	public abstract void save();
 	
-	public abstract int getId();
+	public abstract String getId();
 	
 	public abstract void markChanged();
 	

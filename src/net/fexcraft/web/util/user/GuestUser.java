@@ -37,8 +37,8 @@ public class GuestUser extends User {
 	}
 
 	@Override
-	public int getId(){
-		return 0;
+	public String getId(){
+		return "guest";
 	}
 
 	@Override

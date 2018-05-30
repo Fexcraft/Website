@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -19,6 +21,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.rethinkdb.model.MapObject;
 
 import net.fexcraft.web.Fexcraft;
 
@@ -576,6 +579,60 @@ public class JsonUtil{
 	
 	public static String setPrettyPrinting(JsonObject obj){
 		return gson.toJson(obj);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static MapObject toMapObject(JsonObject json){
+		MapObject obj = new MapObject();
+		for(Entry<String, JsonElement> elm : json.entrySet()){
+			if(elm.getValue().isJsonArray()){
+				obj.put(elm.getKey(), toArray(elm.getValue().getAsJsonArray()));
+			}
+			else if(elm.getValue().isJsonObject()){
+				obj.put(elm.getKey(), toMapObject(elm.getValue().getAsJsonObject()));
+			}
+			else if(elm.getValue().isJsonPrimitive()){
+				obj.put(elm.getKey(), toPrimitive(elm.getValue().getAsJsonPrimitive()));
+			}
+			else if(elm.getValue().isJsonNull()){
+				obj.with(elm.getKey(), "null");
+			}
+			else continue;
+		}
+		return obj;
+	}
+
+	private static List<Object> toArray(JsonArray array){
+		ArrayList<Object> obj = new ArrayList<>();
+		for(JsonElement elm : array){
+			if(elm.isJsonArray()){
+				obj.add(toArray(elm.getAsJsonArray()));
+			}
+			else if(elm.isJsonObject()){
+				obj.add(toMapObject(elm.getAsJsonObject()));
+			}
+			else if(elm.isJsonPrimitive()){
+				obj.add(toPrimitive(elm.getAsJsonPrimitive()));
+			}
+			else if(elm.isJsonNull()){
+				obj.add("null");
+			}
+			else continue;
+		}
+		return obj;
+	}
+
+	private static Object toPrimitive(JsonPrimitive json){
+		if(json.isBoolean()){
+			return json.getAsBoolean();
+		}
+		if(json.isString()){
+			return json.getAsString();
+		}
+		if(json.isNumber()){
+			return json.getAsNumber();
+		}
+		return json.getAsString();
 	}
 	
 }

@@ -4,33 +4,41 @@ import javax.servlet.http.HttpSession;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+import com.google.gson.JsonObject;
+
 import net.fexcraft.web.Fexcraft;
+import net.fexcraft.web.util.JsonUtil;
 import net.fexcraft.web.util.MySql;
+import net.fexcraft.web.util.RTDB;
 
 public class GenericUser extends User {
 
-	private String name, profile_image;
+	private String name, profile_image, id;
 	private HttpSession session;
 	//private JsonObject data;
-	private boolean changed;
-	private int rank, id;
+	private boolean changed, admin;
 	
 	public static final LoginResult validate(HttpSession session, String mail, String pass){
 		LoginResult result = new LoginResult();
-		String hash = MySql.WEB.getString("password", "users", "email", mail);
-		if(hash == null){
-			return result.setResult("Credentials not found in Database.");
-		}
-		if(BCrypt.checkpw(pass, hash)){
-			int id = MySql.WEB.getInt("id", "users", "email", mail, -1);
-			if(id == -1){
-				return result.setResult("User ID not found! This is bad.");
+		try{
+			JsonObject hash = RTDB.get("accounts", "e-mail", mail);
+			if(hash == null){
+				return result.setResult("Credentials not found in Database.");
 			}
-			else{
-				return result.setResult(new GenericUser(session, id));
+			if(BCrypt.checkpw(pass, hash.get("password").getAsString())){
+				String id = RTDB.get("users", "e-mail", mail).getAsJsonObject().get("id").getAsString();
+				if(id == null){
+					return result.setResult("User ID not found! This is bad.");
+				}
+				else{
+					return result.setResult(new GenericUser(session, id));
+				}
 			}
+			else return result.setResult("Invalid E-Mail or Password.");
 		}
-		else return result.setResult("Invalid E-Mail or Password.");
+		catch(Exception e){
+			return result.setResult(e.getMessage());
+		}
 	}
 	
 	public static final class LoginResult {
@@ -62,10 +70,11 @@ public class GenericUser extends User {
 		
 	}
 	
-	private GenericUser(HttpSession session, int id){
+	private GenericUser(HttpSession session, String id){
 		this.session = session; this.id = id;
-		this.rank = MySql.WEB.getInt("rank", "users", "id", id, 0);
-		//this.data = JsonUtil.getObjectFromString(MySql.WEB.getString("data", "users", "id", id, "{}"));
+		JsonObject obj = JsonUtil.getObjectFromString(RTDB.get().table("users").get(id).run(RTDB.conn()));
+		this.admin = JsonUtil.getIfExists(obj, "admin", false);
+		this.name = JsonUtil.getIfExists(obj, "name", "Unnamed User");
 	}
 
 	@Override
@@ -75,7 +84,7 @@ public class GenericUser extends User {
 
 	@Override
 	public boolean isAdmin(){
-		return rank >= 4;
+		return admin;
 	}
 
 	@Override
@@ -108,7 +117,7 @@ public class GenericUser extends User {
 	}
 
 	@Override
-	public int getId(){
+	public String getId(){
 		return id;
 	}
 
