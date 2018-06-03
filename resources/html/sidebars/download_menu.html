@@ -17,33 +17,45 @@
 				else{
 					var last = "";
 					var str = "<table><tr><th>Host Version</th><th>Version</th><th>Download</th><th>Mirror 2</th><th>Mirror 3</th><tr>";
+					var ads = 0;
 					for(var i = 0; i < arr.length; i++){
 						var obj = arr[i];
-						if(obj.mc_version != last && last != ""){ str += "<tr><td> - - - - - </td><td> - - - - - </td><td> - - - - - </td><td> - - - - - </td><td> - - - - - </td></tr>"; }
+						if(obj.mc_version != last && last != ""){
+							str += "<tr style='text-align:center;'><td> - - - - - - - - - - - </td><td> - - - - - - - - - - - </td><td> - - - - - - - - - - - </td><td> - - - - - - - - - - - </td><td> - - - - - - - - - - - </td></tr>";
+							str += "<tr><td colspan=5>Advertisement<div style='height:90px;'><ins class='adsbygoogle' style='display:block' data-ad-client='ca-pub-6266918558682392' data-ad-slot='7123508268' data-ad-format='auto'></ins></div></td></tr>";
+							str += "<tr><th>Host Version</th><th>Version</th><th>Download</th><th>Mirror 2</th><th>Mirror 3</th><tr>";
+							ads++;
+						}
 						last = obj.mc_version;
-						str += "<tr><td>" + obj.mc_version + "</td><td>" + obj.version + "</td><td onClick=\"location.href='" + obj.mirror1_link + "'\">" + obj.mirror1_name + "</td><td onClick=\"location.href='" + obj.mirror2_link + "'\">" + obj.mirror2_name + "</td><td onClick=\"location.href='" + obj.mirror3_link + "'\">" + obj.mirror3_name + "</td></tr>";
+						str += "<tr><td>" + obj.mc_version + "</td><td>" + obj.version + "</td>";
+						for(var j = 0; j < 3; j++){
+							if(obj.mirrors.length > j){
+								str += "<td onClick=\"location.href='" + obj.mirrors[j].link + "'\">" + obj.mirrors[j].name + "</td>";
+							}
+							else{
+								str += "<td> - - - </td>";
+							}
+						}
+						str += "</tr>";
 					}
 					list.innerHTML += str + "</table>";
+					if(ads == 0){
+						list.firstChild.innerHTML += "<tr style='text-align:center;'><td> - - - - - - - - - - - </td><td> - - - - - - - - - - - </td><td> - - - - - - - - - - - </td><td> - - - - - - - - - - - </td><td> - - - - - - - - - - - </td></tr>";
+						list.firstChild.innerHTML += "<tr><td colspan=5>Advertisement<div style='height:90px;'><ins class='adsbygoogle' style='display:block' data-ad-client='ca-pub-6266918558682392' data-ad-slot='7123508268' data-ad-format='auto'></ins></div></td></tr>";
+						(adsbygoogle = window.adsbygoogle || []).push({})
+					}
+					else{
+						for(var i = 0; i < ads; i++){
+							(adsbygoogle = window.adsbygoogle || []).push({})
+						}
+					}
 				}
 			});
 		}
-		post("/download?rq=ids", function(text){
-			var arr = JSON.parse(text);
-			var options = "";
-			if(arr.lenght == 0){
-				options = "<option value='none'>ERROR</option>";
-			}
-			else{
-				for(var i = 0; i < arr.length; i++){
-					options += "<option value='" + arr[i] + "'>" + arr[i] + "</option>";
-				}
-			}
-			elm.innerHTML += "<select id=dlsdid>" + options + "</select>";
-		});
 		post("/download?rq=versions", function(text){
 			var arr = JSON.parse(text);
 			var options = "<option value='all'>All Minecraft Versions</option>";
-			if(arr.lenght == 0){
+			if(arr.length == 0){
 				options = "<option value='1.0'>ERR 1.0</option>";
 			}
 			else{
@@ -52,6 +64,7 @@
 				}
 			}
 			elm.innerHTML += "<select id=dlsdvs>" + options + "</select>";
+			elm.innerHTML += "<select id=dlsdid><option value='" + elm.dataset.selected + "'>" + elm.dataset.selected.toUpperCase() + "</option></select>";
 		});
 	</script>
 </div>

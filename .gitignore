@@ -32,3 +32,4 @@ local.properties
 # Other
 logs/
 configuration.json
+.idea

@@ -1,0 +1,27 @@
+<div id=dltitle style='font-size:40px;font-weight:bold;text-align:center;background-color:#cfcfcf'>Downloads</div>
+<div id=dlstatus style="min-height:250px;">
+	<div id="dlstatustext" style="padding:15px;font-size:24px;text-align:center;">Loading...</div>
+	<script>
+		var elm = document.getElementById("dlstatus");
+		var txt = document.getElementById("dlstatustext");
+		if(elm.dataset.url != 'null'){
+			txt.innerHTML = "Retrieving download token from server..."
+			setTimeout(getToken, 6000);
+		}
+		else{
+			txt.innerHTML = "ERROR - NO URL";
+		}
+
+		function getToken(){
+			post("/files?token=request&url=" + elm.dataset.url, function(text){
+				var obj = JSON.parse(text);
+				if(obj.error != undefined){
+					txt.innerHTML = "ERROR: " + obj.error;
+				}
+				else{
+					txt.innerHTML = "<button style='font-size:24px;padding:10px;' onClick='window.location.href=\"" + elm.dataset.url + "?token=" + obj.token + "\"'>DOWNLOAD FILE</button>";
+				}
+			});
+		}
+	</script>
+</div>
