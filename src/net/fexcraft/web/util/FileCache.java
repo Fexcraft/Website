@@ -1,23 +1,6 @@
 package net.fexcraft.web.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
-
+import net.fexcraft.web.Fexcraft;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
@@ -25,7 +8,14 @@ import org.jsoup.nodes.Document;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import net.fexcraft.web.Fexcraft;
+import javax.annotation.Nullable;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.time.Instant;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class FileCache {
 	
@@ -149,7 +139,7 @@ public class FileCache {
 		}
 		try{
 			File file = new File(new String((Fexcraft.INSTANCE.getProperty("files_location", "/var/www/html/").getAsString() + adress.substring(adress.indexOf("/files"))).getBytes("UTF-8")));
-			if(file.exists()){
+			if(file.exists() && !file.isDirectory()){
 				if(file.length() > 10485760 || getFilesSize() > 536870912){ //10MB //512MB
 					return new FileObject(FileUtils.readFileToByteArray(file), Files.probeContentType(file.toPath()));
 				}
@@ -173,10 +163,20 @@ public class FileCache {
 		}
 	}
 
-	public static Document newDocument(Object user, String title){
+	public static Document newDocument(UserObject user, String title){
 		Document doc = Jsoup.parse(getResource("root", "html"));
 		doc.head().append("<title>" + title + " - Fexcraft Network</title>");
-		doc.body().getElementById("top_right").html("<a href=\"/register\">Register</a><br><a href=\"/session?rq=login\">Login</a>");//TODO login state
+		if(user != null){
+			if(!user.isGuest()){
+				doc.body().getElementById("top_right").html("<a href=\"/settings\">Settings</a><br><a href=\"/session/logout\">Logout</a>");
+			}
+			else{
+				doc.body().getElementById("top_right").html("<a href=\"/session/register\">Register</a><br><a href=\"/session/login\">Login</a>");
+			}
+		}
+		else{
+			doc.body().getElementById("top_right").html("<a href=\"/register\">ERROR</a><br><a href=\"/session/login\">ERROR</a>");
+		}
 		doc.getElementById("footer").getAllElements().get(0).prepend(getResource("ads/ad3-wide", "html"));
 		return doc;
 	}

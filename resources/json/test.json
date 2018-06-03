@@ -1,7 +1,0 @@
-{
-	"test": "json",
-	"scope":{
-		"testing": true,
-		"production": "false"
-	}
-}

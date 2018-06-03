@@ -1,15 +1,14 @@
 package net.fexcraft.web.util;
 
-import java.sql.ResultSet;
-import java.util.ArrayList;
-
 import com.google.gson.JsonObject;
 import com.rethinkdb.RethinkDB;
 import com.rethinkdb.model.MapObject;
 import com.rethinkdb.net.Connection;
 import com.rethinkdb.net.Cursor;
-
 import net.fexcraft.web.Fexcraft;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
 
 public class RTDB {
 
@@ -27,13 +26,14 @@ public class RTDB {
 	private static final ArrayList<String> def_tables = new ArrayList<>();
 	static{
 		def_tables.add("accounts");
+		def_tables.add("sessions");
 		def_tables.add("users");
+		def_tables.add("news");
 		def_tables.add("downloads");
+		def_tables.add("download_tokens");
 		def_tables.add("mc_fcl_json");
-		def_tables.add("mc_fcl_donors");
+		def_tables.add("mc_fcl_donorlist");
 		def_tables.add("mc_fcl_blacklist");
-		def_tables.add("mc_fcl_serverlog");
-		def_tables.add("mc_fcl_clientlog");
 	}
 	
 	public static final void prepare(){
@@ -58,19 +58,27 @@ public class RTDB {
 						String mir3n = set.getString("mirror3_name");
 						String mir3l = set.getString("mirror3_link");
 						int listed = set.getInt("listed");
-						MapObject object = new MapObject();
-						object.with("name", mir1n); object.with("link", mir1l);
+						ArrayList<MapObject> list = new ArrayList<>();
+						if(mir1n != null && !mir1n.equals("") && !mir1n.equals(" ")){
+							MapObject object = new MapObject();
+							object.with("name", mir1n); object.with("link", mir1l);
+							list.add(object);
+						}
 						if(mir2n != null && !mir2n.equals("") && !mir2n.equals(" ")){
+							MapObject object = new MapObject();
 							object.with("name", mir2n); object.with("link", mir2l);
+							list.add(object);
 						}
 						if(mir3n != null && !mir3n.equals("") && !mir3n.equals(" ")){
+							MapObject object = new MapObject();
 							object.with("name", mir3n); object.with("link", mir3l);
+							list.add(object);
 						}
 						instance.table("downloads")
 							.insert(instance.hashMap("version", version)
 							.with("modid", modid)
 							.with("mc_version", mc_version)
-							.with("mirrors", object)
+							.with("mirrors", list)
 							.with("listed", listed == 1)).run(conn);
 					}
 					catch (Exception e){
@@ -92,8 +100,7 @@ public class RTDB {
 						String modid = set.getString("id");
 						JsonObject obj = JsonUtil.getObjectFromString(set.getString("data"));
 						instance.table("mc_fcl_json")
-							.insert(instance.hashMap()
-							.with("modid", modid)
+							.insert(instance.hashMap("id", modid)
 							.with("data", JsonUtil.toMapObject(obj))).run(conn);
 					}
 					catch (Exception e){
@@ -107,6 +114,7 @@ public class RTDB {
 				e.printStackTrace();
 			}
 		}
+		instance.table("sessions").delete().run(conn);
 	}
 	
 	/** May be inacurate. */

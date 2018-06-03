@@ -1,21 +1,18 @@
 package net.fexcraft.web.slash;
 
-import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import com.google.gson.JsonArray;
+import net.fexcraft.web.Fexcraft;
+import net.fexcraft.web.util.FileCache;
+import net.fexcraft.web.util.JsonUtil;
+import net.fexcraft.web.util.RTDB;
+import net.fexcraft.web.util.UserObject;
+import org.jsoup.nodes.Document;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.jsoup.nodes.Document;
-
-import com.google.gson.JsonArray;
-
-import net.fexcraft.web.Fexcraft;
-import net.fexcraft.web.util.FileCache;
-import net.fexcraft.web.util.MySql;
+import java.io.IOException;
 
 public class Index extends HttpServlet {
 	
@@ -26,34 +23,27 @@ public class Index extends HttpServlet {
     	return;
     }
     
-    private static JsonArray images;
+    private static JsonArray images = new JsonArray();
     
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(Fexcraft.redirect(request, response)){ return; }
+		UserObject user = UserObject.fromSession(request.getSession());
 		String rq = request.getParameter("rq");
 		if(rq != null && !rq.equals("")){
 			String reply = "{}";
 			switch(rq){
 				case "news":{
-					try{
-						ResultSet set = MySql.WEB.queryJsonArray("news", "order by time desc limit 15", "time", "author", "title", "content");
-						if(set.first()){
-							reply = "{\"news\":" + set.getString("json") + "}";
-						}
-					}
-					catch(SQLException e){
-						reply = "{'news':[{'time':0,'author':-1,'title':'Error: " + e.getMessage() + "','content':'SQL Error which fetching News.'}]}";
-					}
+					reply = "{\"news\":" + (JsonUtil.fromList(RTDB.get().table("news").orderBy(RTDB.get().desc("time")).limit(12).run(RTDB.conn())).toString()) + "}";
 					break;
 				}
 				case "background":{
-					if(images == null){
-						images = Fexcraft.INSTANCE.getProperty("background_images", new JsonArray()).getAsJsonArray();
-					}
+					if(images == null){ images = Fexcraft.INSTANCE.getProperty("background_images", images).getAsJsonArray(); }
 					if(images.size() == 0){
-						return;
+						reply = "https://cdn.discordapp.com/attachments/124456784193781760/257214392393793546/unknown.png";
 					}
-					reply = images.get(Fexcraft.RANDOM.nextInt(images.size())).getAsString();
+					else{
+						reply = images.get(Fexcraft.RANDOM.nextInt(images.size())).getAsString();
+					}
 					break;
 				}
 			}
@@ -61,7 +51,7 @@ public class Index extends HttpServlet {
 			response.getWriter().append(reply);
 			return;
 		}
-		Document doc = FileCache.newDocument(null, "Home/Index");
+		Document doc = FileCache.newDocument(user, "Home/Index");
 		doc.getElementById("content").html(FileCache.getResource("index", "html"));
 		doc.getElementById("sidebar").html(FileCache.getResource("sidebars/default", "html"));
 		response.getWriter().append(doc.toString());

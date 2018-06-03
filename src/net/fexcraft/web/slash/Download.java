@@ -1,16 +1,16 @@
 package net.fexcraft.web.slash;
 
-import java.io.IOException;
+import net.fexcraft.web.Fexcraft;
+import net.fexcraft.web.util.FileCache;
+import net.fexcraft.web.util.JsonUtil;
+import net.fexcraft.web.util.RTDB;
+import org.jsoup.nodes.Document;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.jsoup.nodes.Document;
-
-import net.fexcraft.web.Fexcraft;
-import net.fexcraft.web.util.FileCache;
-import net.fexcraft.web.util.MySql;
+import java.io.IOException;
 
 public class Download extends HttpServlet {
 	
@@ -29,16 +29,18 @@ public class Download extends HttpServlet {
 		if(rq != null && !rq.equals("")){
 			String reply = "{}";
 			switch(rq){
-				case "ids":{
-					reply = MySql.WEB.getDistinctArray("downloads", "modid", "[\"SQL ERROR\"]").toString();
-					break;
-				}
 				case "versions":{
-					reply = MySql.WEB.getDistinctArray("downloads", "mc_version", "[\"SQL ERROR\"]").toString();
+					reply = "[\"1.12.2\",\"1.12\",\"1.11.2\",\"1.11\",\"1.10.2\",\"1.9.4\",\"1.9\",\"1.8.9\",\"1.8\",\"1.7.10\"]";
 					break;
 				}
 				case "downloads":{
-					reply = MySql.WEB.getArray("downloads", "where modid='" + id + "' and listed='1' "+ (mv == null || mv.equals("") ? "" : "and mc_version='" + mv + "'") + " order by mc_version;", "modid", "mc_version", "version", "mirror1_name", "mirror1_link", "mirror2_name", "mirror2_link", "mirror3_name", "mirror3_link").toString();
+					//reply = MySql.WEB.getArray("downloads", "where modid='" + id + "' and listed='1' "+ (mv == null || mv.equals("") ? "" : "and mc_version='" + mv + "'") + " order by mc_version;", "modid", "mc_version", "version", "mirror1_name", "mirror1_link", "mirror2_name", "mirror2_link", "mirror3_name", "mirror3_link").toString();
+					if(mv == null || mv.equals("") || mv.equals("all")){
+						reply = JsonUtil.fromList(RTDB.get().table("downloads").filter(obj -> obj.g("listed").eq(true)).filter(obj -> obj.g("modid").eq(id)).orderBy("mc_version").run(RTDB.conn())).toString();
+					}
+					else{
+						reply = JsonUtil.fromList(RTDB.get().table("downloads").filter(obj -> obj.g("listed").eq(true)).filter(obj -> obj.g("modid").eq(id)).filter(obj -> obj.g("mc_version").eq(mv)).orderBy("version").run(RTDB.conn())).toString();
+					}
 					break;
 				}
 			}
@@ -53,7 +55,7 @@ public class Download extends HttpServlet {
 			doc.getElementById("dlsdsl").attr("data-selected", id);
 		}
 		doc.getElementById("dllist").before(FileCache.getResource("ads/ad3-wide", "html"));
-		doc.getElementById("dllist").after(FileCache.getResource("ads/ad3-wide", "html"));
+		//doc.getElementById("dllist").after(FileCache.getResource("ads/ad3-wide", "html"));
 		response.getWriter().append(doc.toString());
 		return;
 	}

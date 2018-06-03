@@ -8,6 +8,7 @@ import java.util.zip.Deflater;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.fexcraft.web.util.*;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,7 +31,9 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.quartz.JobBuilder;
 import org.quartz.Scheduler;
@@ -47,18 +50,10 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 
 import net.dv8tion.jda.core.JDA;
 import net.fexcraft.web.files.MainFileServer;
-import net.fexcraft.web.files.WebData;
 import net.fexcraft.web.minecraft.fcl.Request;
 import net.fexcraft.web.slash.Download;
 import net.fexcraft.web.slash.Index;
 import net.fexcraft.web.slash.License;
-import net.fexcraft.web.slash.TermsOfService;
-import net.fexcraft.web.util.FileCache;
-import net.fexcraft.web.util.JsonUtil;
-import net.fexcraft.web.util.MySql;
-import net.fexcraft.web.util.RTDB;
-import net.fexcraft.web.util.SessionListener;
-import net.fexcraft.web.util.user.UserCache;
 
 public class Fexcraft extends Server {
 	
@@ -151,18 +146,20 @@ public class Fexcraft extends Server {
 		//
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath("/");
-		context.setResourceBase(System.getProperty("java.io.tmpdir"));
+		context.setResourceBase("./resources/public");
+		debug(context.getResourceBase());
 		context.getSessionHandler().addEventListener(new SessionListener());
+		this.getClass().getClassLoader().getResource("/org/eclipse/jetty/http/mime.properties");
 		this.setHandler(context);
 		//
 		info("Registering Servlets.");
 		context.addServlet(Request.class, "/minecraft/fcl/request");
 		context.addServlet(MainFileServer.class, "/files/*");
 		context.addServlet(License.class, "/license");
-		context.addServlet(WebData.class, "/webdata");
-		context.addServlet(Index.class, "/*");
+		context.addServlet(Index.class, "/index");
+		context.addServlet(Index.class, "/home");
 		context.addServlet(Download.class, "/download");
-		context.addServlet(TermsOfService.class, "/tos");
+		context.addServlet(DefaultServlet.class, "/");
 		//
 		try{
 			info("Starting Webserver...");
@@ -196,7 +193,7 @@ public class Fexcraft extends Server {
 				JobBuilder.newJob(FileCache.ScheduledClearing.class).withDescription("Removes files which wheren't used longer than 10 minutes.").withIdentity("file_clearer", "group0").build(),
 				TriggerBuilder.newTrigger().withIdentity("10min", "group0").withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMinutes(10).repeatForever()).startNow().build());
 			scheduler.scheduleJob(
-					JobBuilder.newJob(UserCache.ScheduledSaving.class).withDescription("Saves Users with changes data to Database.").withIdentity("user_saver", "group1").build(),
+					JobBuilder.newJob(UserObject.ScheduledClearing.class).withDescription("Removes inactive users.").withIdentity("user_clearer", "group1").build(),
 					TriggerBuilder.newTrigger().withIdentity("15min", "group1").withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMinutes(15).repeatForever()).startNow().build());
 		}
 		catch(SchedulerException e){

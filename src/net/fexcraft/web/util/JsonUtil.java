@@ -7,22 +7,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
+import com.rethinkdb.gen.ast.OrderBy;
 import com.rethinkdb.model.MapObject;
 
+import com.rethinkdb.net.Cursor;
 import net.fexcraft.web.Fexcraft;
 
 /**
@@ -206,7 +200,6 @@ public class JsonUtil{
 	/**
 	 * @param file File to be updated
 	 * @param string Target value/object
-	 * @param value
 	 */
 	public static void update(File file, String string, JsonElement element){
 		JsonObject obj = get(file);
@@ -284,7 +277,6 @@ public class JsonUtil{
 	 * Gets a value from a JsonObject if it exists, else returns null
 	 * @param obj
 	 * @param target
-	 * @param default_value
 	 */
 	public static String getStringIfExists(JsonObject obj, String target){
 		if(obj.has(target)){
@@ -297,7 +289,6 @@ public class JsonUtil{
 	 * Gets a value from a JsonObject if it exists, else returns -1
 	 * @param obj
 	 * @param target
-	 * @param default_value
 	 */
 	public static Number getNumberIfExists(JsonObject obj, String target){
 		if(obj.has(target)){
@@ -310,7 +301,6 @@ public class JsonUtil{
 	 * Gets a value from a JsonObject if it exists, else returns false
 	 * @param obj
 	 * @param target
-	 * @param default_value
 	 */
 	public static boolean getBooleanIfExists(JsonObject obj, String target){
 		if(obj.has(target)){
@@ -323,7 +313,6 @@ public class JsonUtil{
 	 * Gets a JsonElement from a JsonObject if it exists, else returns null
 	 * @param obj
 	 * @param target
-	 * @param default_value
 	 */
 	public static JsonElement getIfExists(JsonObject obj, String target){
 		if(!obj.has(target)){
@@ -396,7 +385,6 @@ public class JsonUtil{
 	/**
 	 * Checks if JsonArray contains String.
 	 * @param array
-	 * @param string
 	 * @return
 	 */
 	public static boolean contains(JsonArray array, Number number){
@@ -634,5 +622,84 @@ public class JsonUtil{
 		}
 		return json.getAsString();
 	}
-	
+
+	public static JsonObject fromMapObject(HashMap<String, Object> map){
+		JsonObject obj = new JsonObject();
+		for (Entry<String, Object> entry : map.entrySet()){
+			if(entry.getValue() instanceof String){
+				obj.addProperty(entry.getKey(), (String)entry.getValue());
+			}
+			else if(entry.getValue() instanceof Number){
+				obj.addProperty(entry.getKey(), (Number)entry.getValue());
+			}
+			else if(entry.getValue() instanceof Boolean){
+				obj.addProperty(entry.getKey(), (Boolean)entry.getValue());
+			}
+			else if(entry.getValue() == null){
+				obj.add(entry.getKey(), new JsonNull());
+			}
+			else if(entry.getValue() instanceof List){
+				obj.add(entry.getKey(), fromList((List<Object>)entry.getValue()));
+			}
+			else if(entry.getValue() instanceof Map){
+				obj.add(entry.getKey(), fromMapObject((HashMap<String, Object>)entry.getValue()));
+			}
+		}
+		return obj;
+	}
+
+	public static JsonArray fromList(List<Object> list){
+		JsonArray array = new JsonArray();
+		for(Object obj : list){
+			if(obj instanceof String){
+				array.add((String)obj);
+			}
+			else if(obj instanceof Number){
+				array.add((Number)obj);
+			}
+			else if(obj instanceof Boolean){
+				array.add((Boolean)obj);
+			}
+			else if(obj == null){
+				array.add(new JsonNull());
+			}
+			else if(obj instanceof List){
+				array.add(fromList((List<Object>)obj));
+			}
+			else if(obj instanceof Map){
+				array.add(fromMapObject((HashMap<String, Object>)obj));
+			}
+		}
+		return array;
+	}
+
+	public static JsonObject fromMapSubObject(Object obj, String data){
+		return fromMapObject((HashMap<String, Object>)((HashMap<String, Object>)obj).get(data));
+	}
+
+	public static JsonArray fromCursor(Object run){
+		Cursor cursor = (Cursor)run;
+		JsonArray array = new JsonArray();
+		for(Object obj : cursor){
+			if(obj instanceof HashMap){
+				array.add(fromMapObject((HashMap<String, Object>)obj));
+			}
+			else if(obj instanceof List){
+				array.add(fromList((List<Object>)obj));
+			}
+			else if(obj instanceof String){
+				array.add((String)obj);
+			}
+			else if(obj instanceof Number){
+				array.add((Number)obj);
+			}
+			else if(obj instanceof Boolean){
+				array.add((Boolean)obj);
+			}
+			else{
+				array.add(obj.toString());
+			}
+		}
+		return array;
+	}
 }
