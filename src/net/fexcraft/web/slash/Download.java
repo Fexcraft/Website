@@ -36,7 +36,7 @@ public class Download extends HttpServlet {
 				case "downloads":{
 					//reply = MySql.WEB.getArray("downloads", "where modid='" + id + "' and listed='1' "+ (mv == null || mv.equals("") ? "" : "and mc_version='" + mv + "'") + " order by mc_version;", "modid", "mc_version", "version", "mirror1_name", "mirror1_link", "mirror2_name", "mirror2_link", "mirror3_name", "mirror3_link").toString();
 					if(mv == null || mv.equals("") || mv.equals("all")){
-						reply = JsonUtil.fromList(RTDB.get().table("downloads").filter(obj -> obj.g("listed").eq(true)).filter(obj -> obj.g("modid").eq(id)).orderBy("mc_version").run(RTDB.conn())).toString();
+						reply = JsonUtil.fromList(RTDB.get().table("downloads").filter(obj -> obj.g("listed").eq(true)).filter(obj -> obj.g("modid").eq(id)).orderBy("version").orderBy("mc_version").run(RTDB.conn())).toString();
 					}
 					else{
 						reply = JsonUtil.fromList(RTDB.get().table("downloads").filter(obj -> obj.g("listed").eq(true)).filter(obj -> obj.g("modid").eq(id)).filter(obj -> obj.g("mc_version").eq(mv)).orderBy("version").run(RTDB.conn())).toString();

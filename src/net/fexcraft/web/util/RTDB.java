@@ -117,6 +117,7 @@ public class RTDB {
 			}
 		}
 		instance.table("sessions").delete().run(conn);
+		instance.table("download_tokens").delete().run(conn);
 		//
 		if((Long)instance.table("accounts").count().run(conn) == 0){
 			Fexcraft.info("Accounts table seems empty, inserting default Admin account.");

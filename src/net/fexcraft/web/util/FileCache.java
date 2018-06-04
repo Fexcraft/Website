@@ -10,6 +10,7 @@ import org.quartz.JobExecutionException;
 
 import javax.annotation.Nullable;
 import java.io.*;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.Instant;
@@ -138,7 +139,8 @@ public class FileCache {
 			return FILES.get(adress);
 		}
 		try{
-			File file = new File(new String((Fexcraft.INSTANCE.getProperty("files_location", "/var/www/html/").getAsString() + adress.substring(adress.indexOf("/files"))).getBytes("UTF-8")));
+			String adr = URLDecoder.decode(adress, "UTF-8");
+			File file = new File(new String((Fexcraft.INSTANCE.getProperty("files_location", "/var/www/html/").getAsString() + adr.substring(adr.indexOf("/files"))).getBytes("UTF-8")));
 			if(file.exists() && !file.isDirectory()){
 				if(file.length() > 10485760 || getFilesSize() > 536870912){ //10MB //512MB
 					return new FileObject(FileUtils.readFileToByteArray(file), Files.probeContentType(file.toPath()));
@@ -155,6 +157,7 @@ public class FileCache {
 					return obj;
 				}
 			}
+			Fexcraft.debug(file.toString());
 			return null;
 		}
 		catch(IOException e){
