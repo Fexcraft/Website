@@ -33,3 +33,6 @@ local.properties
 logs/
 configuration.json
 .idea
+WebServer.jar
+WebServer_lib/*
+keystore.jks

@@ -10,6 +10,7 @@ import org.jsoup.nodes.Document;
 
 import net.fexcraft.web.Fexcraft;
 import net.fexcraft.web.util.FileCache;
+import net.fexcraft.web.util.UserObject;
 
 public class License extends HttpServlet {
 	
@@ -22,8 +23,7 @@ public class License extends HttpServlet {
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		if(Fexcraft.redirect(req, resp)){ return; }
-		//Document document = Resources.getDocument(user, "Licenses");
-		Document document = FileCache.newDocument(null, "Licenses");
+		Document document = FileCache.newDocument(UserObject.fromSession(req.getSession()), "Licenses");
 		document.getElementById("content").append(FileCache.getResource("licenses/" + req.getParameter("id"), "html"));
 		resp.getWriter().append(document.toString());
 	}

@@ -33,7 +33,6 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.quartz.JobBuilder;
 import org.quartz.Scheduler;
@@ -122,7 +121,7 @@ public class Fexcraft extends Server {
 	public Fexcraft(String[] args) throws InterruptedException {
 		INSTANCE = this; config = JsonUtil.get(new File("./configuration.json"));
 		http_port = getProperty("http_port", 80).getAsInt();
-		https_port = getProperty("https_port", 433).getAsInt();
+		https_port = getProperty("https_port", 443).getAsInt();
 		//
 		ServerConnector http = new ServerConnector(this);
 		http.setHost(getProperty("host", "0.0.0.0").getAsString());
@@ -169,6 +168,7 @@ public class Fexcraft extends Server {
 			error(e.getMessage());
 			error("Running in NoSSL/Developement Mode!");
 			devmode = true;
+			e.printStackTrace();
 		}
 		info("Loading JDA (Discord Bot).");
 		//jda = new JDABuilder(AccountType.BOT).setToken(getProperty(devmode ? "discord_dev_token" : "discord_token", "null").getAsString()).addEventListener(new MainListener()).buildBlocking();
@@ -223,7 +223,7 @@ public class Fexcraft extends Server {
 		if((request.getServerPort() == INSTANCE.http_port || request.getScheme().equals("http")) && request.getParameter("nossl") == null && !dev()){
     		String str = "https://" + request.getServerName() + request.getRequestURI() + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
             try{ response.sendRedirect(str); }
-            catch(IOException e){ if(dev()){ e.printStackTrace(); } }
+            catch(IOException e){ e.printStackTrace(); }
     		return true;
     	}
     	else{
