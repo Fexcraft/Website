@@ -10,6 +10,8 @@ import net.fexcraft.web.Fexcraft;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 public class RTDB {
 
 	private static final RethinkDB instance = RethinkDB.r;
@@ -115,6 +117,24 @@ public class RTDB {
 			}
 		}
 		instance.table("sessions").delete().run(conn);
+		//
+		if((Long)instance.table("accounts").count().run(conn) == 0){
+			Fexcraft.info("Accounts table seems empty, inserting default Admin account.");
+			MapObject map = new MapObject();
+			map.with("id", "fercalo96@yahoo.de");
+			map.with("password", BCrypt.hashpw(Fexcraft.INSTANCE.getProperty("admin_pass", "null").getAsString(), BCrypt.gensalt()));
+			map.with("userid", 1);
+			map.with("admin", true);
+			instance.table("accounts").insert(map).run(conn);
+		}
+		if((Long)instance.table("users").count().run(conn) == 0){
+			Fexcraft.info("Users table seems empty, inserting default Admin account.");
+			MapObject map = new MapObject();
+			map.with("id", 1);
+			map.with("name", "Ferdinand");
+			map.with("admin", true);
+			instance.table("users").insert(map).run(conn);
+		}
 	}
 	
 	/** May be inacurate. */

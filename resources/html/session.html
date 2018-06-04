@@ -1,0 +1,22 @@
+<div style='font-size:40px;font-weight:bold;text-align:center;background-color:#cfcfcf'>Session Management</div>
+<div style='padding:20px;text-align:center;margin:auto;font-size:20px;'>
+	<span style='display:inline-block; width:100px;'>E-Mail</span><input style='font-size:20px;' type=text id=mail name=mail value='your@mail.here'><br>
+	<span style='display:inline-block; width:100px;'>Password</span><input style='font-size:20px;' type=password id=pswd name=pswd value=''><br>
+	<button style='font-size:18px;' onClick='tryLogin();'>Submit</button>
+</div>
+<script>
+	function tryLogin(){
+		post("/session?rq=login&mail=" + document.getElementById("mail").value + "&pswd=" + document.getElementById("pswd").value, function(text){
+			var obj = JSON.parse(text);
+			document.getElementById("lgstatus").innerHTML = obj.status;
+			if(obj.success){
+				setTimeout(redirect, 5000)
+				document.getElementById("lgstatus").innerHTML += "<br>Redirecting to homepage in 5 seconds.";
+			}
+		});
+	}
+	function redirect(){
+		window.location.href = "/home";
+	}
+</script>
+<div id=lgstatus style='padding:20px;text-align:center;font-size:20px;margin:20px;border:1px solid gray;'></div>

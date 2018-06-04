@@ -1,0 +1,24 @@
+<div style='font-size:40px;font-weight:bold;text-align:center;background-color:#cfcfcf'>Add a Download</div>
+<style>
+	#fields input {
+		font-size: 20px;
+	}
+	#fields span {
+		display: inline-block;
+		width: 200px;
+		text-align: left;
+	}
+</style>
+<form id=fields style='padding:20px;text-align:center;margin:auto;font-size:20px;' action="/minecraft/fcl/adddownload">
+	<span>Mod/Addon ID</span><input type=text name=id><br>
+	<span>MC/Host Version</span><input type=text name=host><br>
+	<span>Version</span><input type=text name=version><br>
+	<span>Mirror 1 Name</span><input type=text name=mir1name><br>
+	<span>Mirror 1 Link</span><input type=text name=mir1link><br>
+	<span>Mirror 2 Name</span><input type=text name=mir2name><br>
+	<span>Mirror 2 Link</span><input type=text name=mir2link><br>
+	<span>Mirror 3 Name</span><input type=text name=mir3name><br>
+	<span>Mirror 3 Link</span><input type=text name=mir3link><br>
+	<input name=rq value='add' hidden>
+	<input type=submit>
+</form>

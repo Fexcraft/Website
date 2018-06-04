@@ -49,10 +49,12 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 
 import net.dv8tion.jda.core.JDA;
 import net.fexcraft.web.files.MainFileServer;
+import net.fexcraft.web.minecraft.fcl.AddDownload;
 import net.fexcraft.web.minecraft.fcl.Request;
 import net.fexcraft.web.slash.Download;
 import net.fexcraft.web.slash.Index;
 import net.fexcraft.web.slash.License;
+import net.fexcraft.web.slash.Session;
 
 public class Fexcraft extends Server {
 	
@@ -159,6 +161,8 @@ public class Fexcraft extends Server {
 		context.addServlet(Index.class, "/home");
 		context.addServlet(Download.class, "/download");
 		context.addServlet(DefaultServlet.class, "/");
+		context.addServlet(Session.class, "/session");
+		context.addServlet(AddDownload.class, "/minecraft/fcl/adddownload");
 		//
 		try{
 			info("Starting Webserver...");

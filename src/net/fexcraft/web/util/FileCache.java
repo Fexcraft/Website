@@ -168,14 +168,14 @@ public class FileCache {
 		doc.head().append("<title>" + title + " - Fexcraft Network</title>");
 		if(user != null){
 			if(!user.isGuest()){
-				doc.body().getElementById("top_right").html("<a href=\"/settings\">Settings</a><br><a href=\"/session/logout\">Logout</a>");
+				doc.body().getElementById("top_right").html("<a href=\"/settings\">Settings</a><br><a href=\"/session?rq=logout\">Logout</a>");
 			}
 			else{
-				doc.body().getElementById("top_right").html("<a href=\"/session/register\">Register</a><br><a href=\"/session/login\">Login</a>");
+				doc.body().getElementById("top_right").html("<a href=\"/session/register\">Register</a><br><a href=\"/session\">Login</a>");
 			}
 		}
 		else{
-			doc.body().getElementById("top_right").html("<a href=\"/register\">ERROR</a><br><a href=\"/session/login\">ERROR</a>");
+			doc.body().getElementById("top_right").html("<a href=\"/register\">ERROR</a><br><a href=\"/session\">ERROR</a>");
 		}
 		doc.getElementById("footer").getAllElements().get(0).prepend(getResource("ads/ad3-wide", "html"));
 		return doc;
