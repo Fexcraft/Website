@@ -1,0 +1,25 @@
+<div style='font-size:40px;font-weight:bold;text-align:center;background-color:#cfcfcf'>Update Mod/Addon JSON</div>
+<style>
+	#fields input {
+		font-size: 20px;
+	}
+	#fields span {
+		display: inline-block;
+		width: 150px;
+		text-align: left;
+	}
+</style>
+<form id=fields style='padding:20px;text-align:center;margin:auto;font-size:20px;' action="/minecraft/fcl/updatejson">
+	<span>Mod/Addon ID</span><input type=text id=modid name=id value='fcl'><br>
+	<textarea style='padding:10px; width:500px;min-height:100px;' id=json name="json" form="fields">JSON</textarea><br>
+	<input name=rq value='update' hidden>
+	<input type=submit>
+</form>
+<button style='margin:auto;padding:10px;display:block;font-size:16px;'onClick='fetchjsondata();'>FETCH CURRENT JSON DATA</button>
+<script>
+	function fetchjsondata(){
+		post("/minecraft/fcl/updatejson?rq=get&id=" + document.getElementById("modid").value, function(text){
+			document.getElementById("json").value = text;
+		});
+	}
+</script>
