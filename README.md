@@ -4,7 +4,7 @@ Official Fexcraft Website
 
 # ALL RIGHTS RESERVED UNTIL FURTHER OFFICIAL NOTICE
 ## Contributing
-http://fexcraft.net/tos#contributing
+https://fexcraft.net/raw/info/tos.html#contributing
 
 
 # Used Libraries
