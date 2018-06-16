@@ -53,7 +53,11 @@ public class Request extends HttpServlet {
 					reply = getBlackList(request, request.getParameter("id"));
 					break;
 				case "isdonor":
-					reply = getDonorList(request.getParameter("id"));
+					JsonObject obj = getDonorList(request.getParameter("id"));
+					if(obj != null){ reply = obj; }
+					if(!reply.has("expired")){
+						reply.addProperty("expired", true);
+					}
 					break;
 				case "logserver": case "logclient":
 					reply.addProperty("error", "Stat collection has been disabled, please check if there is an update for your FCL version available, or do disable the specific setting in config!");
@@ -121,7 +125,7 @@ public class Request extends HttpServlet {
 			object.add("list", JsonUtil.fromCursor(RTDB.get().table("mc_fcl_donorlist").filter(obj -> obj.g("expired").eq(0)).run(RTDB.conn())));
 		}
 		else{
-			object = JsonUtil.fromMapObject(RTDB.get().table("").get(id).run(RTDB.conn()));
+			object = JsonUtil.fromMapObject(RTDB.get().table("mc_fcl_donorlist").get(id).run(RTDB.conn()));
 		}
 		return object;
 	}
