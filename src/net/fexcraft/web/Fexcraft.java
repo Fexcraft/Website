@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.zip.Deflater;
 
+import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -47,7 +48,11 @@ import com.google.gson.JsonPrimitive;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 
+import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.fexcraft.web.discord.fbot.MainListener;
 import net.fexcraft.web.files.MainFileServer;
 import net.fexcraft.web.minecraft.fcl.AddDownload;
 import net.fexcraft.web.minecraft.fcl.Request;
@@ -161,6 +166,7 @@ public class Fexcraft extends Server {
 		context.addServlet(Index.class, "/index");
 		context.addServlet(Index.class, "/home");
 		context.addServlet(Download.class, "/download");
+		context.addServlet(Download.class, "/files/download");
 		context.addServlet(DefaultServlet.class, "/");
 		context.addServlet(Session.class, "/session");
 		context.addServlet(AddDownload.class, "/minecraft/fcl/adddownload");
@@ -177,7 +183,10 @@ public class Fexcraft extends Server {
 			e.printStackTrace();
 		}
 		info("Loading JDA (Discord Bot).");
-		//jda = new JDABuilder(AccountType.BOT).setToken(getProperty(devmode ? "discord_dev_token" : "discord_token", "null").getAsString()).addEventListener(new MainListener()).buildBlocking();
+		try{
+			jda = new JDABuilder(AccountType.BOT).setToken(getProperty(devmode ? "discord_dev_token" : "discord_token", "null").getAsString()).addEventListener(new MainListener()).buildBlocking();
+		}
+		catch(LoginException | IllegalArgumentException | RateLimitedException e){ e.printStackTrace(); }
 		AUDIOMANAGER = new DefaultAudioPlayerManager();
 		info("Assigning AudioManager.");
 		AudioSourceManagers.registerRemoteSources(AUDIOMANAGER);

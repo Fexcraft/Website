@@ -2,6 +2,7 @@ package net.fexcraft.web.util;
 
 import com.google.gson.JsonObject;
 import com.rethinkdb.RethinkDB;
+import com.rethinkdb.gen.ast.Table;
 import com.rethinkdb.model.MapObject;
 import com.rethinkdb.net.Connection;
 import com.rethinkdb.net.Cursor;
@@ -36,6 +37,7 @@ public class RTDB {
 		def_tables.add("mc_fcl_json");
 		def_tables.add("mc_fcl_donorlist");
 		def_tables.add("mc_fcl_blacklist");
+		def_tables.add("discord_fbot");
 	}
 	
 	public static final void prepare(){
@@ -163,6 +165,10 @@ public class RTDB {
 	public static JsonObject get(String table, String field, String equals){
 		Cursor<Object> cursor = instance.table(table).filter(pre -> pre.g(field).eq(equals)).run(conn);
 		return cursor.hasNext() ? JsonUtil.getObjectFromString(cursor.next().toString()) : null;
+	}
+
+	public static Table table(String string){
+		return instance.table(string);
 	}
 
 }

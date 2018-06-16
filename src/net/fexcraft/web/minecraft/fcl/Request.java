@@ -70,7 +70,6 @@ public class Request extends HttpServlet {
 			response.getWriter().append(pp ? JsonUtil.setPrettyPrinting(reply).toString() : reply.toString());
 		}
 		catch(Exception e){
-			response.setStatus(500);
 			response.getWriter().append("{\"error\":\"" + e.getMessage() + "\"}");
 		}
 	}

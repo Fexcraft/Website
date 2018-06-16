@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 import javax.annotation.Nullable;
 
 import com.google.gson.*;
-import com.rethinkdb.gen.ast.OrderBy;
 import com.rethinkdb.model.MapObject;
 
 import com.rethinkdb.net.Cursor;
@@ -469,6 +468,22 @@ public class JsonUtil{
 		return list;
 	}
 	
+	public static ArrayList<Long> jsonArrayToLongArray(JsonArray array){
+		ArrayList<Long> list = new ArrayList<Long>();
+		for(JsonElement e : array){
+			try{
+				if(e.isJsonPrimitive()){
+					list.add(e.getAsLong());
+				}
+			}
+			catch(ClassCastException ex){
+				//ex.printStackTrace();
+				continue;
+			}
+		}
+		return list;
+	}
+	
 	public static void add(JsonArray array, String string){
 		array.add(new JsonPrimitive(string));
 	}
@@ -625,7 +640,8 @@ public class JsonUtil{
 
 	public static JsonObject fromMapObject(HashMap<String, Object> map){
 		JsonObject obj = new JsonObject();
-		for (Entry<String, Object> entry : map.entrySet()){
+		if(map == null){ return obj; }
+		for(Entry<String, Object> entry : map.entrySet()){
 			if(entry.getValue() instanceof String){
 				obj.addProperty(entry.getKey(), (String)entry.getValue());
 			}
