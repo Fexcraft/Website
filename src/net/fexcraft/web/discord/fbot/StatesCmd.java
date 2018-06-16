@@ -60,6 +60,7 @@ public class StatesCmd implements Command {
 								sendReply(event, "Keyword updated.");
 								delete(event);
 							}
+							break;
 						}
 						case "channel":{
 							String str = args[3];
@@ -140,11 +141,6 @@ public class StatesCmd implements Command {
 						return;
 					}
 				}
-				break;
-			}
-			case "send-join-test":{
-				//event.getTextChannel().sendMessage(serv.getWelcomeMessage(event.getMember().getEffectiveName())).queue();
-				//event.getTextChannel().sendMessage(serv.getLeaveMessage(event.getMember().getEffectiveName())).queue();
 				break;
 			}
 		}
