@@ -50,7 +50,7 @@ public class DatabaseViewer extends HttpServlet{
 			}
 			String reply = "{}";
 			String id = request.getParameter("id");
-			if(id == null || id.equals("") || id.equals("ID")){
+			if((id == null || id.equals("") || id.equals("ID")) && !rq.equals("insert")){
 				response.getWriter().append("{\"error\":\"missing_id\"}");
 				return;
 			}
@@ -67,7 +67,8 @@ public class DatabaseViewer extends HttpServlet{
 					}
 					case "insert":{
 						MapObject obj = JsonUtil.toMapObject(JsonUtil.getObjectFromString(request.getParameter("data")));
-						RTDB.get().table(table).insert(obj.with("id", id)).run(RTDB.conn());
+						if(id != null && !id.equals("")){ obj.with("id", id); }
+						RTDB.get().table(table).insert(obj).run(RTDB.conn());
 						break;
 					}
 				}

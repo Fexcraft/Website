@@ -22,8 +22,8 @@ function databaseTableDelete(id){
 }
 function databaseTableInsert(){
 	var id = document.getElementById("database_table_insert_id").innerText;
-	if(id == "" || id == " " || id == "ID"){ return; }
-	post("/database?table=" + getTable() + "&rq=insert&id=" + id + "&data=" + document.getElementById("database_table_insert").innerText, function(text){
+	id = (id == "" || id == " ") ? "" : "&id=" + id;
+	post("/database?table=" + getTable() + "&rq=insert" + id + "&data=" + document.getElementById("database_table_insert").innerText, function(text){
 		if(text == "{}"){
 			window.location.reload();
 		}
