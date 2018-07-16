@@ -1,0 +1,45 @@
+<script>
+function databaseTableUpdate(id){
+	post("/database?table=" + getTable() + "&rq=update&id=" + id + "&data=" + document.getElementById("dbt_" + id).innerText, function(text){
+		if(text == "{}"){
+			window.location.reload();
+		}
+		else{
+			alert(text);
+		}
+	});
+}
+function databaseTableDelete(id){
+	var json = document.getElementById("dbt_" + id).innerText;
+	post("/database?table=" + getTable() + "&rq=delete&id=" + id, function(text){
+		if(text == "{}"){
+			window.location.reload();
+		}
+		else{
+			alert(text);
+		}
+	});
+}
+function databaseTableInsert(){
+	var id = document.getElementById("database_table_insert_id").innerText;
+	if(id == "" || id == " " || id == "ID"){ return; }
+	post("/database?table=" + getTable() + "&rq=insert&id=" + id + "&data=" + document.getElementById("database_table_insert").innerText, function(text){
+		if(text == "{}"){
+			window.location.reload();
+		}
+		else{
+			alert(text);
+		}
+	});
+}
+function convertDBJSON(){
+	var list = document.getElementsByClassName("database_table_rowcontent");
+	for(var i = 0; i < list.length; i++){
+		var obj = JSON.parse(list[i].innerHTML);
+		list[i].innerHTML = JSON.stringify(obj, null, 4);
+	}
+}
+function getTable(){
+	return document.getElementById("database_table").dataset.table;
+}
+</script>

@@ -224,3 +224,22 @@ td:hover {
     color: black;
     width: 100%;
 }
+
+#database_table {
+	border: 3px double black;
+}
+
+#database_table td {
+	border: 1px solid #076713;
+}
+
+#database_table td:hover {
+	background-color: #a7bcd1;
+	color: #001c64;
+}
+
+.database_table_rowcontent {
+	font-family: monospace;
+	white-space: pre;
+	padding: 10px;
+}

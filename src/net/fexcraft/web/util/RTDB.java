@@ -35,7 +35,6 @@ public class RTDB {
 		def_tables.add("downloads");
 		def_tables.add("download_tokens");
 		def_tables.add("mc_fcl_json");
-		def_tables.add("mc_fcl_donorlist");
 		def_tables.add("mc_fcl_blacklist");
 		def_tables.add("discord_fbot");
 	}

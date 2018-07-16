@@ -57,6 +57,7 @@ import net.fexcraft.web.files.MainFileServer;
 import net.fexcraft.web.minecraft.fcl.AddDownload;
 import net.fexcraft.web.minecraft.fcl.Request;
 import net.fexcraft.web.minecraft.fcl.UpdateJson;
+import net.fexcraft.web.slash.DatabaseViewer;
 import net.fexcraft.web.slash.Download;
 import net.fexcraft.web.slash.Index;
 import net.fexcraft.web.slash.License;
@@ -171,6 +172,7 @@ public class Fexcraft extends Server {
 		context.addServlet(Session.class, "/session");
 		context.addServlet(AddDownload.class, "/minecraft/fcl/adddownload");
 		context.addServlet(UpdateJson.class, "/minecraft/fcl/updatejson");
+		context.addServlet(DatabaseViewer.class, "/database");
 		//
 		try{
 			info("Starting Webserver...");

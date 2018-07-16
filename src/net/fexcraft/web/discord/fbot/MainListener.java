@@ -14,7 +14,10 @@ import com.rethinkdb.model.MapObject;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.fexcraft.web.Fexcraft;
@@ -88,6 +91,7 @@ public class MainListener extends ListenerAdapter {
 			welcome_new_members = map.containsKey("welcome_new_members") ? (boolean)map.get("welcome_new_members") : false;
 			welcome_msg = map.containsKey("welcome_message") ? (String)map.get("welcome_message") : "Welcome $username!";
 			leave_msg = map.containsKey("leave_message") ? (String)map.get("leave_message") : "$username left the Discord Server!";
+			entrancehall = map.containsKey("entrancehall") ? Long.parseLong((String)map.get("entrancehall")) : 0l;
 		}
 
 		public void save(){
@@ -100,6 +104,7 @@ public class MainListener extends ListenerAdapter {
 			object.with("welcome_new_members", welcome_new_members);
 			object.with("welcome_message", welcome_msg);
 			object.with("leave_message", leave_msg);
+			object.with("entrancehall", entrancehall + "");
 			//
 			if((Long)RTDB.table("discord_fbot").filter(RTDB.get().hashMap("id", id + "")).count().run(RTDB.conn()) > 0){
 				RTDB.table("discord_fbot").update(object).run(RTDB.conn());
@@ -175,14 +180,17 @@ public class MainListener extends ListenerAdapter {
 		}
 	}
 	
-	/*@Override
+	@Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event){
 		Server serv = SERVERS.get(event.getGuild().getIdLong());
 		if(serv == null){
 			SERVERS.put(event.getGuild().getIdLong(), serv = new Server(event.getGuild().getIdLong()));
 		}
-		if(!serv.no_welcome){
-			serv.getEntranceHall(event.getGuild()).sendMessage(serv.getWelcomeMessage(event.getMember().getEffectiveName())).queue();
+		if(serv.welcome_new_members){
+			TextChannel channel = event.getGuild().getTextChannelById(serv.entrancehall);
+			if(channel != null){
+				channel.sendMessage(serv.getWelcomeMessage(event.getMember().getEffectiveName())).queue();
+			}
 		}
 	}
 	
@@ -192,10 +200,13 @@ public class MainListener extends ListenerAdapter {
 		if(serv == null){
 			SERVERS.put(event.getGuild().getIdLong(), serv = new Server(event.getGuild().getIdLong()));
 		}
-		if(!serv.no_welcome){
-			serv.getEntranceHall(event.getGuild()).sendMessage(serv.getLeaveMessage(event.getMember().getEffectiveName())).queue();
+		if(serv.welcome_new_members){
+			TextChannel channel = event.getGuild().getTextChannelById(serv.entrancehall);
+			if(channel != null){
+				channel.sendMessage(serv.getLeaveMessage(event.getMember().getEffectiveName())).queue();
+			}
 		}
-	}*/
+	}
 	
 	/*@Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event){
