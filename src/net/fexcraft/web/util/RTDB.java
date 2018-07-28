@@ -37,6 +37,9 @@ public class RTDB {
 		def_tables.add("mc_fcl_json");
 		def_tables.add("mc_fcl_blacklist");
 		def_tables.add("discord_fbot");
+		//def_tables.add("forums_forums");
+		//def_tables.add("forums_topics");
+		//def_tables.add("forums_posts");
 	}
 	
 	public static final void prepare(){

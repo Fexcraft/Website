@@ -16,6 +16,7 @@ import net.fexcraft.web.Fexcraft;
 /**
  * @author Ferdinand (FEX___96)
  */
+@Deprecated
 public class MySql {
 	
 	private final String user;

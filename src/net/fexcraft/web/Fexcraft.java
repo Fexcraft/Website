@@ -6,9 +6,9 @@ import java.util.Random;
 import java.util.zip.Deflater;
 
 import javax.security.auth.login.LoginException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import net.fexcraft.web.util.*;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -26,14 +26,17 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.quartz.JobBuilder;
 import org.quartz.Scheduler;
@@ -61,6 +64,7 @@ import net.fexcraft.web.slash.DatabaseViewer;
 import net.fexcraft.web.slash.Download;
 import net.fexcraft.web.slash.Index;
 import net.fexcraft.web.slash.License;
+import net.fexcraft.web.slash.Register;
 import net.fexcraft.web.slash.Session;
 
 public class Fexcraft extends Server {
@@ -126,6 +130,7 @@ public class Fexcraft extends Server {
 	private boolean devmode;
 	private JDA jda;
 	private Scheduler scheduler;
+	//private Server SERVER;
 	
 	public Fexcraft(String[] args) throws InterruptedException {
 		INSTANCE = this; config = JsonUtil.get(new File("./configuration.json"));
@@ -152,13 +157,29 @@ public class Fexcraft extends Server {
 			this.addConnector(http);
 		}
 		//
-		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		/*ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath("/");
 		context.setResourceBase("./resources/public");
 		debug(context.getResourceBase());
 		context.getSessionHandler().addEventListener(new SessionListener());
+		context.setHandler(this);
 		this.getClass().getClassLoader().getResource("/org/eclipse/jetty/http/mime.properties");
-		this.setHandler(context);
+		this.setHandler(context);*/
+		//
+		SessionListener shandler = new SessionListener();
+		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		context.setContextPath("/"); context.setResourceBase("./resources/public");
+		context.getSessionHandler().addEventListener(shandler);
+		//
+		ServletContextHandler forums = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		forums.setContextPath("/"); forums.setResourceBase("./resources/forums");
+		forums.getSessionHandler().addEventListener(shandler);
+		forums.setVirtualHosts(new String[]{ "forum.localhost", "forum.fexcraft.net" });
+		//
+		ServletContextHandler proxy = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		proxy.setContextPath("/"); proxy.setResourceBase("./resources/proxy");
+		proxy.getSessionHandler().addEventListener(shandler);
+		proxy.setVirtualHosts(new String[]{ "db.localhost", "db.fexcraft.net" });
 		//
 		info("Registering Servlets.");
 		context.addServlet(Request.class, "/minecraft/fcl/request");
@@ -173,6 +194,21 @@ public class Fexcraft extends Server {
 		context.addServlet(AddDownload.class, "/minecraft/fcl/adddownload");
 		context.addServlet(UpdateJson.class, "/minecraft/fcl/updatejson");
 		context.addServlet(DatabaseViewer.class, "/database");
+		context.addServlet(Register.class, "/register");
+		//
+		forums.addServlet(DefaultServlet.class, "/");
+		forums.addServlet(Register.class, "/register");
+		//
+		ServletHolder proxyServlet = new ServletHolder(AuthProxy.class);
+		proxyServlet.setInitParameter("proxyTo", "http://127.0.0.1:8080/");
+		proxyServlet.setInitParameter("prefix", "/");
+		proxy.addServlet(proxyServlet, "/*");
+		//
+		ContextHandlerCollection coll = new ContextHandlerCollection();
+		coll.setHandlers(new Handler[]{ context, forums, proxy });
+		this.getClass().getClassLoader().getResource("/org/eclipse/jetty/http/mime.properties");
+		this.setHandler(coll);
+		debug("\n" + context.getResourceBase() + "\n" + forums.getResourceBase());
 		//
 		try{
 			info("Starting Webserver...");
@@ -192,14 +228,8 @@ public class Fexcraft extends Server {
 		AUDIOMANAGER = new DefaultAudioPlayerManager();
 		info("Assigning AudioManager.");
 		AudioSourceManagers.registerRemoteSources(AUDIOMANAGER);
-		info("Connecting to MySql Database...");
-		new MySql(
-			getProperty("mysql_username", "root").getAsString(),
-			getProperty("mysql_password", "passpass").getAsString(),
-			getProperty("mysql_port", "0995").getAsString(),
-			getProperty("mysql_hostname", "something.net").getAsString(),
-			getProperty("mysql_database", "none").getAsString()
-		);
+		//info("Connecting to MySql Database...");
+		//new MySql( getProperty("mysql_username", "root").getAsString(), getProperty("mysql_password", "passpass").getAsString(), getProperty("mysql_port", "0995").getAsString(), getProperty("mysql_hostname", "something.net").getAsString(), getProperty("mysql_database", "none").getAsString());
 		info("Controlling Database.");
 		RTDB.prepare();
 		try{
@@ -210,8 +240,8 @@ public class Fexcraft extends Server {
 				JobBuilder.newJob(FileCache.ScheduledClearing.class).withDescription("Removes files which wheren't used longer than 10 minutes.").withIdentity("file_clearer", "group0").build(),
 				TriggerBuilder.newTrigger().withIdentity("10min", "group0").withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMinutes(10).repeatForever()).startNow().build());
 			scheduler.scheduleJob(
-					JobBuilder.newJob(UserObject.ScheduledClearing.class).withDescription("Removes inactive users.").withIdentity("user_clearer", "group1").build(),
-					TriggerBuilder.newTrigger().withIdentity("15min", "group1").withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMinutes(15).repeatForever()).startNow().build());
+				JobBuilder.newJob(UserObject.ScheduledClearing.class).withDescription("Removes inactive users.").withIdentity("user_clearer", "group1").build(),
+				TriggerBuilder.newTrigger().withIdentity("15min", "group1").withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMinutes(15).repeatForever()).startNow().build());
 		}
 		catch(SchedulerException e){
 			error("Scheduler Setup Error: " + e.getMessage());
@@ -237,6 +267,10 @@ public class Fexcraft extends Server {
 	}
 	
 	public static boolean redirect(HttpServletRequest request, HttpServletResponse response){
+		Cookie cookie = new Cookie("JSESSIONID", request.getSession().getId());
+		cookie.setDomain(dev() ? ".localhost" : ".fexcraft.net");
+		cookie.setSecure(true);
+	    response.addCookie(cookie);
 		if((request.getServerPort() == INSTANCE.http_port || request.getScheme().equals("http")) && request.getParameter("nossl") == null && !dev()){
     		String str = "https://" + request.getServerName() + request.getRequestURI() + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
             try{ response.sendRedirect(str); }

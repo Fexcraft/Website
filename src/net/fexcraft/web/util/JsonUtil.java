@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.*;
 import com.rethinkdb.model.MapObject;
@@ -22,6 +23,7 @@ import net.fexcraft.web.Fexcraft;
  * @author Ferdinand (FEX___96)
  * @comment Main class for Json processing.
  */
+@SuppressWarnings("unchecked")
 public class JsonUtil{
 	
 	private static final JsonUtil instance = new JsonUtil();
@@ -584,7 +586,6 @@ public class JsonUtil{
 		return gson.toJson(obj);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static MapObject toMapObject(JsonObject json){
 		MapObject obj = new MapObject();
 		for(Entry<String, JsonElement> elm : json.entrySet()){
@@ -638,6 +639,7 @@ public class JsonUtil{
 		return json.getAsString();
 	}
 
+	@SuppressWarnings("deprecation")
 	public static JsonObject fromMapObject(HashMap<String, Object> map){
 		JsonObject obj = new JsonObject();
 		if(map == null){ return obj; }
@@ -664,6 +666,7 @@ public class JsonUtil{
 		return obj;
 	}
 
+	@SuppressWarnings("deprecation")
 	public static JsonArray fromList(List<Object> list){
 		JsonArray array = new JsonArray();
 		for(Object obj : list){
@@ -694,7 +697,7 @@ public class JsonUtil{
 	}
 
 	public static JsonArray fromCursor(Object run){
-		Cursor cursor = (Cursor)run;
+		Cursor<?> cursor = (Cursor<?>)run;
 		JsonArray array = new JsonArray();
 		for(Object obj : cursor){
 			if(obj instanceof HashMap){
@@ -718,4 +721,9 @@ public class JsonUtil{
 		}
 		return array;
 	}
+
+	public static void reply(HttpServletResponse response, JsonObject reply) throws IOException {
+		response.getWriter().append(reply.toString());
+	}
+	
 }
