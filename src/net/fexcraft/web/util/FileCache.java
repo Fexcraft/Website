@@ -183,5 +183,28 @@ public class FileCache {
 		doc.getElementById("footer").getAllElements().get(0).prepend(getResource("ads/ad3-wide", "html"));
 		return doc;
 	}
+	
+	private static String prefix;
+	private static String prefix(){
+		return prefix == null ? prefix = Fexcraft.dev() ? "fexcraft.test" : "fexcraft.net" : prefix;
+	}
+
+	public static Document newForumDocument(UserObject user, String title){
+		Document doc = Jsoup.parse(getResource("forums/root", "html"));
+		doc.head().append("<title>" + title + " - Fexcraft Forums</title>");
+		if(user != null){
+			if(!user.isGuest()){
+				doc.body().getElementById("top_right").html("<a href=\"http://" + prefix() + "/settings\">Settings</a><br><a href=\"http://" + prefix() + "/session?rq=logout\">Logout</a>");
+			}
+			else{
+				doc.body().getElementById("top_right").html("<a href=\"http://" + prefix() + "/session/register\">Register</a><br><a href=\"http://" + prefix() + "/session\">Login</a>");
+			}
+		}
+		else{
+			doc.body().getElementById("top_right").html("<a href=\"" + prefix() + "/register\">ERROR</a><br><a href=\"http://" + prefix() + "/session\">ERROR</a>");
+		}
+		doc.getElementById("footer").getAllElements().get(0).prepend(getResource("ads/ad3-wide", "html"));
+		return doc;
+	}
 
 }

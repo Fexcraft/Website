@@ -2,14 +2,11 @@ package net.fexcraft.web.util;
 
 import com.google.gson.JsonObject;
 import com.rethinkdb.RethinkDB;
-import com.rethinkdb.gen.ast.Table;
+import com.rethinkdb.ast.ReqlAst;
 import com.rethinkdb.model.MapObject;
 import com.rethinkdb.net.Connection;
 import com.rethinkdb.net.Cursor;
 import net.fexcraft.web.Fexcraft;
-
-import java.sql.ResultSet;
-import java.util.ArrayList;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -25,31 +22,44 @@ public class RTDB {
 	public static final Connection conn(){
 		return conn;
 	}
+
+	public static com.rethinkdb.gen.ast.Table table(String string){
+		return instance.table(string);
+	}
+
+	public static com.rethinkdb.gen.ast.Table get(Table table){
+		return instance.table(table.rtid);
+	}
 	
-	private static final ArrayList<String> def_tables = new ArrayList<>();
-	static{
-		def_tables.add("accounts");
-		def_tables.add("sessions");
-		def_tables.add("users");
-		def_tables.add("news");
-		def_tables.add("downloads");
-		def_tables.add("download_tokens");
-		def_tables.add("mc_fcl_json");
-		def_tables.add("mc_fcl_blacklist");
-		def_tables.add("discord_fbot");
-		//def_tables.add("forums_forums");
-		//def_tables.add("forums_topics");
-		//def_tables.add("forums_posts");
+	public static <T> T run(ReqlAst reql){
+		return reql.run(conn);
+	}
+	
+	public static enum Table {
+		ACCOUNTS("accounts"),
+		USERS("users"),
+		NEWS("news"),
+		DOWNLOADS("downloads"),
+		DOWNLOAD_TOKENS("download_tokens"),
+		FCL_JSONS("mc_fcl_json"),
+		FCL_BLACKLIST("mc_fcl_blacklist"),
+		FBOT("discord_fbot"),
+		F_FORUMS("forum_forums"),
+		F_TOPICS("forum_topics"),
+		F_POSTS("forum_posts");
+		
+		String rtid;
+		Table(String id){ this.rtid = id; }
 	}
 	
 	public static final void prepare(){
-		def_tables.forEach(def -> {
-			if(!tableExists(def)){
-				Fexcraft.info("Creating table '" + def + "'!");
-				instance.tableCreate(def).run(conn);
+		for(Table table : Table.values()){
+			if(!tableExists(table.rtid)){
+				Fexcraft.info("Creating table '" + table.rtid + "'!");
+				instance.tableCreate(table.rtid).run(conn);
 			}
-		});
-		if((Long)instance.table("downloads").count().run(conn) == 0){
+		}
+		/*if((Long)instance.table("downloads").count().run(conn) == 0){
 			try{
 				ResultSet set = MySql.WEB.query("select * from downloads");
 				while(set.next()){
@@ -119,7 +129,7 @@ public class RTDB {
 				Fexcraft.error(e);
 				e.printStackTrace();
 			}
-		}
+		}*/
 		instance.table("sessions").delete().run(conn);
 		instance.table("download_tokens").delete().run(conn);
 		//
@@ -167,10 +177,6 @@ public class RTDB {
 	public static JsonObject get(String table, String field, String equals){
 		Cursor<Object> cursor = instance.table(table).filter(pre -> pre.g(field).eq(equals)).run(conn);
 		return cursor.hasNext() ? JsonUtil.getObjectFromString(cursor.next().toString()) : null;
-	}
-
-	public static Table table(String string){
-		return instance.table(string);
 	}
 
 }

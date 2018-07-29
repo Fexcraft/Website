@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css" />
+		<script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
+		<script>window.addEventListener("load", function(){window.cookieconsent.initialise({ "palette": { "popup": { "background": "#000" }, "button": { "background": "#f1d600" } }, "theme": "classic", "position": "bottom-left" })});</script>
+		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+		<style type="text/css"> * { font-family: 'Roboto', sans-serif; } </style>
+		<script src='/style/common.js'></script>
+		<link rel="stylesheet" type="text/css" href="/style/common.css">
+		<script src='https://www.google.com/recaptcha/api.js'></script>
+		<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+		<script>(adsbygoogle = window.adsbygoogle || []).push({ google_ad_client: "ca-pub-6266918558682392", enable_page_level_ads: true });</script>
+	</head>
+	<body>
+		<div id=background></div>
+		<div id=top>
+			<div id=top_left onClick='location="/home"'>Fexcraft Forums</div>
+			<div id=top_right>$replace</div>
+		</div>
+		<div id=content>
+			
+		</div>
+		<div id=footer>
+			<table>
+				<caption style='padding-top:10px;font-weight:bold;'>Fexcraft Forums &copy; 2013-2018 | All rights reserved. All content is copyright Fexcraft.Net and/or their Creators. | <a href='http://fexcraft.net/raw/info/tos.html'>Terms of Service</a> | <a href='http://fexcraft.net/raw/info/contact.html'>Contact/Impressum</a></caption>
+			</table>
+		</div>
+		<script>
+		post("/index?rq=background", function(text){
+			document.getElementById("background").style.backgroundImage = "url('" + text + "')";
+		});
+		</script>
+	</body>
+</html>

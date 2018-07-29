@@ -1,0 +1,41 @@
+<div id=forums style='min-height:500px'></div>
+<script>
+var forums = document.getElementById("forums");
+function loadForums(){
+	post("/index?rq=forums", function(text){
+		var arr = JSON.parse(text);
+		for(var i = 0; i < arr.length; i++){
+			var str = "<div id=f" + arr[i].id + " class=index-forum>"
+			str += "<span style=\"font-size:28px;padding:5px;\">" + arr[i].title + "</span><br></div>"
+			forums.innerHTML += str;
+			loadSubForums(arr[i].id);
+		}
+	});
+}
+function loadSubForums(len){
+	post("/index?rq=forums&parent=" + len, function(text){
+		var arr = JSON.parse(text);
+		for(var i = 0; i < arr.length; i++){
+			var str = "<div id=f" + arr[i].id + " class=index-subforum><span onClick='location.href=\"/forum?id=" + arr[i].id + "\"' >" + arr[i].title + "</span>";
+			if(arr[i].description != undefined){
+				str += "<div class=index-subforum-desc>" + arr[i].description + "<div>";
+			}
+			document.getElementById("f" + len).innerHTML += str + "</div>";
+			loadLatestPost(arr[i].id);
+		}
+	});
+}
+function loadLatestPost(len){
+	post("/index?rq=latest_post&forum=" + len, function(text){
+		var obj = JSON.parse(text);
+		var str = "";
+		if(obj.title != undefined){
+			str += "<div class=index-subforum-topic>Last post by <span style='color:purple;' onClick='location.href=\"/user?id=" + obj.user + "\"'>" + obj.author + "</span>";
+			str += " in <span style='color:blue;' onClick='location.href=\"/topic?id=" + obj.topic + "\"'>" + obj.title + "</span>";
+			str += " at <span style='color:olive;'>" + getTime(obj.date) + "</span></div>"
+			document.getElementById("f" + len).innerHTML += str;
+		}
+	});
+}
+loadForums();
+</script>

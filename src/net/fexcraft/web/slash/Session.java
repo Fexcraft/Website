@@ -31,7 +31,7 @@ public class Session extends HttpServlet{
 			switch (rq) {
 				case "login":{
 					if(user.isGuest()){
-						reply = user.tryLogin(request.getParameter("mail"), request.getParameter("pswd")).toString();
+						reply = user.login(request.getParameter("mail"), request.getParameter("pswd")).toString();
 					}
 					else{
 						reply = "{\"status\":\"Already logged in.\", \"success\":false}";

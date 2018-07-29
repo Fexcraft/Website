@@ -1,20 +1,25 @@
-package net.fexcraft.web.slash;
+package net.fexcraft.web.forum;
 
-import com.google.gson.JsonArray;
 import net.fexcraft.web.Fexcraft;
+import net.fexcraft.web.slash.Index;
 import net.fexcraft.web.util.FileCache;
 import net.fexcraft.web.util.JsonUtil;
 import net.fexcraft.web.util.RTDB;
+import net.fexcraft.web.util.RTDB.Table;
 import net.fexcraft.web.util.UserObject;
 import org.jsoup.nodes.Document;
 
+import com.google.gson.JsonArray;
+import com.rethinkdb.model.MapObject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-public class Index extends HttpServlet {
+public class ForumIndex extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
     
@@ -22,8 +27,6 @@ public class Index extends HttpServlet {
     	doGet(request, response);
     	return;
     }
-    
-    public static JsonArray images = new JsonArray();
     
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(Fexcraft.redirect(request, response)){ return; }
@@ -37,13 +40,27 @@ public class Index extends HttpServlet {
 					break;
 				}
 				case "background":{
-					if(images == null){ images = Fexcraft.INSTANCE.getProperty("background_images", images).getAsJsonArray(); }
-					if(images.size() == 0){
+					if(Index.images == null){ Index.images = Fexcraft.INSTANCE.getProperty("background_images", Index.images).getAsJsonArray(); }
+					if(Index.images.size() == 0){
 						reply = "https://cdn.discordapp.com/attachments/124456784193781760/257214392393793546/unknown.png";
 					}
 					else{
-						reply = images.get(Fexcraft.RANDOM.nextInt(images.size())).getAsString();
+						reply = Index.images.get(Fexcraft.RANDOM.nextInt(Index.images.size())).getAsString();
 					}
+					break;
+				}
+				case "forums":{
+					JsonArray array = new JsonArray();
+					ArrayList<HashMap<String, Object>> cursor = RTDB.run(RTDB.get(Table.F_FORUMS).filter(
+						new MapObject().with("parent", request.getParameter("parent") == null ? 0 : Integer.parseInt(request.getParameter("parent")))).orderBy("weight"));
+					cursor.forEach(elm -> {
+						array.add(JsonUtil.fromMapObject(elm));
+					});
+					reply = array.toString();
+					break;
+				}
+				case "latest_post":{
+					reply = "{\"author\":\"TestUser\", \"user\":0, \"title\":\"Some Random Topic Title\", \"topic\":1, \"date\":0}";
 					break;
 				}
 			}
@@ -51,9 +68,8 @@ public class Index extends HttpServlet {
 			response.getWriter().append(reply);
 			return;
 		}
-		Document doc = FileCache.newDocument(user, "Home/Index");
-		doc.getElementById("content").html(FileCache.getResource("index", "html"));
-		doc.getElementById("sidebar").html(FileCache.getResource("sidebars/default", "html"));
+		Document doc = FileCache.newForumDocument(user, "Index");
+		doc.getElementById("content").html(FileCache.getResource("forums/index", "html"));
 		response.getWriter().append(doc.toString());
 		return;
 	}

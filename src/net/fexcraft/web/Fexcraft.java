@@ -2,6 +2,8 @@ package net.fexcraft.web;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.zip.Deflater;
 
@@ -38,7 +40,10 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.quartz.Job;
 import org.quartz.JobBuilder;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleScheduleBuilder;
@@ -48,6 +53,7 @@ import org.quartz.impl.StdSchedulerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.rethinkdb.net.Cursor;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 
@@ -57,6 +63,7 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.fexcraft.web.discord.fbot.MainListener;
 import net.fexcraft.web.files.MainFileServer;
+import net.fexcraft.web.forum.ForumIndex;
 import net.fexcraft.web.minecraft.fcl.AddDownload;
 import net.fexcraft.web.minecraft.fcl.Request;
 import net.fexcraft.web.minecraft.fcl.UpdateJson;
@@ -175,12 +182,12 @@ public class Fexcraft extends Server {
 		ServletContextHandler forums = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		forums.setContextPath("/"); forums.setResourceBase("./resources/forums");
 		forums.getSessionHandler().addEventListener(shandler);
-		forums.setVirtualHosts(new String[]{ "forum.localhost", "forum.fexcraft.net" });
+		forums.setVirtualHosts(new String[]{ "forum.fexcraft.test", "forum.fexcraft.net" });
 		//
 		ServletContextHandler proxy = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		proxy.setContextPath("/"); proxy.setResourceBase("./resources/proxy");
 		proxy.getSessionHandler().addEventListener(shandler);
-		proxy.setVirtualHosts(new String[]{ "db.localhost", "db.fexcraft.net" });
+		proxy.setVirtualHosts(new String[]{ "db.fexcraft.test", "db.fexcraft.net" });
 		//
 		info("Registering Servlets.");
 		context.addServlet(Request.class, "/minecraft/fcl/request");
@@ -198,10 +205,10 @@ public class Fexcraft extends Server {
 		context.addServlet(Register.class, "/register");
 		//
 		forums.addServlet(DefaultServlet.class, "/");
-		forums.addServlet(Register.class, "/register");
+		forums.addServlet(ForumIndex.class, "/index");
 		//
 		ServletHolder proxyServlet = new ServletHolder(AuthProxy.class);
-		proxyServlet.setInitParameter("proxyTo", "http://127.0.0.1:8080/");
+		proxyServlet.setInitParameter("proxyTo", "http://localhost:8080/");
 		proxyServlet.setInitParameter("prefix", "/");
 		proxy.addServlet(proxyServlet, "/*");
 		//
@@ -241,7 +248,7 @@ public class Fexcraft extends Server {
 				JobBuilder.newJob(FileCache.ScheduledClearing.class).withDescription("Removes files which wheren't used longer than 10 minutes.").withIdentity("file_clearer", "group0").build(),
 				TriggerBuilder.newTrigger().withIdentity("10min", "group0").withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMinutes(10).repeatForever()).startNow().build());
 			scheduler.scheduleJob(
-				JobBuilder.newJob(UserObject.ScheduledClearing.class).withDescription("Removes inactive users.").withIdentity("user_clearer", "group1").build(),
+				JobBuilder.newJob(ScheduledClearing.class).withDescription("Removes inactive data.").withIdentity("data_clearer", "group1").build(),
 				TriggerBuilder.newTrigger().withIdentity("15min", "group1").withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMinutes(15).repeatForever()).startNow().build());
 		}
 		catch(SchedulerException e){
@@ -287,6 +294,25 @@ public class Fexcraft extends Server {
 	
 	public final JDA getJavaDiscordApplicationProgrammingInterface(){
 		return jda;
+	}
+
+	public static class ScheduledClearing implements Job {
+
+		@Override
+		public void execute(JobExecutionContext context) throws JobExecutionException {
+			ArrayList<String> oldtokens = new ArrayList<>();
+			Cursor<HashMap<String, Object>> cursor = RTDB.get().table("download_tokens").run(RTDB.conn());
+			for(HashMap<String, Object> obj : cursor){
+				JsonObject json = JsonUtil.fromMapObject(obj);
+				if(json.get("time").getAsLong() < System.currentTimeMillis()){
+					oldtokens.add(json.get("id").getAsString());
+				}
+			}
+			for(String tok : oldtokens){
+				RTDB.get().table("download_tokens").get(tok).delete().run(RTDB.conn());
+			}
+		}
+
 	}
 
 }

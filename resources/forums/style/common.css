@@ -1,0 +1,168 @@
+* {
+	/**/
+}
+
+body {
+	margin: 0;
+	width: 100%;
+}
+
+#top {
+	height: 50px;
+	background-color: #70a3cd;
+	overflow: auto;
+	padding: 5px;
+	min-width:1000px;
+}
+
+#top_left {
+	float: left;
+	font-weight: bold;
+	color: white;
+	padding: 5px;
+	font-size: 32px;
+	border-radius: 12px;
+}
+
+#top_left:hover {
+	background-color: #bebebe;
+	color: black;
+	cursor: pointer;
+}
+
+#top_right {
+	float: right;
+	font-weight: bold;
+	font-size: 20px;
+	color: white;
+}
+
+#top_right a {
+	padding: 2.5px;
+	padding-left: 5px;
+	padding-right: 5px;
+	color: #c8c537;
+	text-decoration: none;
+	border-radius: 6px;
+}
+
+#top_right a:hover {
+	background-color: #bebebe;
+	color: black;
+	cursor: pointer;
+}
+
+#background {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	z-index: -1;
+	background-repeat: space;
+	background-size: 100% 100%;
+	background-attachment: fixed;
+}
+
+#content {
+	margin: auto;
+	width: 1200px;
+	min-height: 500px;
+	background-color: #dddddd;
+	overflow: auto;
+}
+
+#footer {
+	border-top: 3px double black;
+	margin: auto;
+	width: 1200px;
+	border-radius: 0 0 12px 12px;
+	background-color: #dce3b5;
+}
+
+#footer table {
+	opacity: 0.20;
+	padding: 10px;
+	width: 100%;
+	margin: auto;
+	border-radius: 6px;
+	max-height: 10px;
+}
+
+#footer th, td {
+	width: 25%;
+	border-left: 1px dashed black;
+	border-right: 1px dashed black;
+	border-top: 1px dashed black;
+	border-bottom: 1px dashed black;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+#footer table:hover {
+	height: auto;
+	opacity: 1;
+}
+
+#footer th {
+	background-color: #2894ff;
+}
+
+td:hover {
+	background-color: #dddddd;
+	color: black;
+	cursor: pointer;
+}
+
+.horizontal-adbox {
+    max-height: 350px;
+    min-height: 100px;
+    width: 100%;
+    /**/
+    border-top: 3px solid;
+    border-bottom: 3px solid;
+    border-color: skyblue;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    padding: 0;
+    background-color: ghostwhite;
+    text-align: left;
+}
+
+.horizontal-adbox b {
+    background-color: skyblue;
+    padding: 0 10px 0 10px;
+    color: black;
+    width: 100%;
+}
+
+.index-forum {
+	margin: 20px;
+	border: 3px solid #4d4d4d;
+	background-color: #4d4d4d;
+	color: white;
+}
+
+.index-subforum {
+	margin: 5px;
+	padding: 10px;
+	font-size: 18px;
+	border: 2px solid #6c6c6c;
+	background-color: gray;
+}
+.index-subforum:hover {
+	border: 2px solid #ffff00;
+	cursor: pointer;
+}
+
+.index-subforum-desc {
+	font-size: 12px;
+	background-color: #c8c8c8;
+	border-bottom: 1px solid black;
+	color: black;
+	padding: 5px;
+}
+.index-subforum-topic {
+	font-size: 12px;
+	background-color: #c8c8c8;
+	color: black;
+	padding: 5px;
+}
