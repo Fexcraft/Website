@@ -11,12 +11,14 @@ public class ContextListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce){
         SessionCookieConfig scf = sce.getServletContext().getSessionCookieConfig();
         scf.setComment("Commentless.");
-        scf.setDomain(!Fexcraft.dev() ? ".localhost" : ".fexcraft.net");
+        scf.setDomain(Fexcraft.dev() ? ".fexcraft.test" : ".fexcraft.net");
         scf.setHttpOnly(false);
         scf.setMaxAge(30000);
         scf.setPath("/session");
-        //scf.setSecure(true);
-        scf.setName("JSESSIONID");
+        if(!Fexcraft.dev()){
+        	scf.setSecure(true);
+        }
+        //scf.setName("JSESSIONID");
         return;
     }
 

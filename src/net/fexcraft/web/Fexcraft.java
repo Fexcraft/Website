@@ -136,6 +136,7 @@ public class Fexcraft extends Server {
 		INSTANCE = this; config = JsonUtil.get(new File("./configuration.json"));
 		http_port = getProperty("http_port", 80).getAsInt();
 		https_port = getProperty("https_port", 443).getAsInt();
+		devmode = getProperty("local", false).getAsBoolean();
 		//
 		ServerConnector http = new ServerConnector(this);
 		http.setHost(getProperty("host", "0.0.0.0").getAsString());
@@ -268,8 +269,7 @@ public class Fexcraft extends Server {
 	
 	public static boolean redirect(HttpServletRequest request, HttpServletResponse response){
 		Cookie cookie = new Cookie("JSESSIONID", request.getSession().getId());
-		cookie.setDomain(dev() ? ".localhost" : ".fexcraft.net");
-		cookie.setSecure(true);
+		cookie.setDomain(dev() ? ".fexcraft.test" : ".fexcraft.net"); cookie.setHttpOnly(true);
 	    response.addCookie(cookie);
 		if((request.getServerPort() == INSTANCE.http_port || request.getScheme().equals("http")) && request.getParameter("nossl") == null && !dev()){
     		String str = "https://" + request.getServerName() + request.getRequestURI() + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
